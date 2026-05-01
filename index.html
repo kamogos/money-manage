@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
     <title>极简记账</title>
     <style>
         :root {
@@ -17,9 +17,7 @@
             --shadow: 0 2px 12px rgba(0,0,0,0.06);
             --radius: 16px;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
             background: var(--bg);
@@ -31,7 +29,6 @@
             -webkit-tap-highlight-color: transparent;
             user-select: none;
         }
-
         /* 月份切换 */
         .month-picker {
             display: flex;
@@ -41,448 +38,140 @@
             margin-bottom: 24px;
         }
         .month-picker button {
-            background: none;
-            border: none;
-            font-size: 22px;
-            color: var(--text);
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 8px;
-            transition: background 0.2s;
+            background: none; border: none; font-size: 22px; color: var(--text); cursor: pointer; padding: 4px 8px; border-radius: 8px;
         }
-        .month-picker button:active { background: var(--border); }
-        .month-title {
-            font-size: 18px;
-            font-weight: 600;
-            min-width: 110px;
-            text-align: center;
-            color: var(--text);
-        }
-
-        /* 每日名言卡片 */
-        .quote-card {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 16px 18px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 14px;
-            line-height: 1.6;
-            border-left: 4px solid var(--primary);
-        }
-        .quote-text {
-            font-style: italic;
-            margin-bottom: 6px;
-        }
-        .quote-author {
-            font-weight: 600;
-            color: var(--text);
-            font-size: 13px;
-        }
+        .month-title { font-size: 18px; font-weight: 600; min-width: 110px; text-align: center; }
 
         /* 概览卡片 */
-        .overview {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 28px;
-        }
+        .overview { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 28px; }
         .card {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 18px 8px;
-            text-align: center;
-            box-shadow: var(--shadow);
-            transition: transform 0.2s;
+            background: var(--card); border-radius: var(--radius); padding: 18px 8px; text-align: center; box-shadow: var(--shadow);
         }
-        .card:active { transform: scale(0.97); }
-        .card .label {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-            letter-spacing: 0.5px;
-        }
-        .card .amount {
-            font-size: 20px;
-            font-weight: 700;
-        }
-        .income-amount    { color: var(--income); }
-        .expense-amount   { color: var(--expense); }
-        .balance-amount   { color: var(--primary); }
+        .card .label { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; }
+        .card .amount { font-size: 20px; font-weight: 700; }
+        .income-amount { color: var(--income); }
+        .expense-amount { color: var(--expense); }
+        .balance-amount { color: var(--primary); }
 
-        /* 记账按钮 */
+        /* 悬浮 + 按钮 */
         .fab {
-            position: fixed;
-            bottom: 90px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 56px;
-            height: 56px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 28px;
-            font-size: 28px;
-            box-shadow: 0 4px 16px rgba(52,152,219,0.4);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); width: 56px; height: 56px;
+            background: var(--primary); color: white; border: none; border-radius: 28px; font-size: 28px;
+            box-shadow: 0 4px 16px rgba(52,152,219,0.4); cursor: pointer; display: flex; align-items: center; justify-content: center;
             z-index: 90;
-            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .fab:active {
-            transform: translateX(-50%) scale(0.92);
-            box-shadow: 0 2px 8px rgba(52,152,219,0.3);
-        }
+        .fab:active { transform: translateX(-50%) scale(0.92); }
 
         /* 账单列表 */
         .record-list { margin-top: 10px; }
         .date-group { margin-bottom: 20px; }
-        .date-header {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 10px;
-            padding-left: 6px;
-            display: flex;
-            justify-content: space-between;
-            letter-spacing: 0.3px;
-        }
+        .date-header { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; padding-left: 6px; display: flex; justify-content: space-between; }
         .record-item {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 14px 16px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            box-shadow: var(--shadow);
-            transition: transform 0.15s;
+            background: var(--card); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 8px;
+            display: flex; align-items: center; box-shadow: var(--shadow);
         }
         .record-item:active { transform: scale(0.98); }
-        .record-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 14px;
-            font-size: 22px;
-            background: #f0f3f5;
-        }
+        .record-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 14px; font-size: 22px; background: #f0f3f5; }
         .record-info { flex: 1; }
         .record-category { font-weight: 600; font-size: 15px; margin-bottom: 2px; }
         .record-note { font-size: 12px; color: var(--text-secondary); }
         .record-amount { font-weight: 700; font-size: 16px; }
         .record-amount.income { color: var(--income); }
         .record-amount.expense { color: var(--expense); }
-        .record-delete {
-            margin-left: 14px;
-            color: #bdc3c7;
-            cursor: pointer;
-            font-size: 18px;
-            padding: 6px;
-            border-radius: 8px;
-            transition: background 0.2s;
-        }
-        .record-delete:active { background: #f0f0f0; }
+        .record-delete { margin-left: 14px; color: #bdc3c7; cursor: pointer; font-size: 18px; padding: 6px; border-radius: 8px; }
 
         /* 底部导航 */
         .tab-nav {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: calc(100% - 32px);
-            max-width: 468px;
-            background: var(--card);
-            border-radius: 28px;
-            padding: 6px;
-            display: flex;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            z-index: 100;
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px);
+            max-width: 468px; background: var(--card); border-radius: 28px; padding: 6px; display: flex;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1); z-index: 100;
         }
         .tab-btn {
-            flex: 1;
-            text-align: center;
-            padding: 12px;
-            border-radius: 24px;
-            font-weight: 600;
-            cursor: pointer;
-            color: var(--text-secondary);
-            border: none;
-            background: transparent;
-            font-size: 15px;
-            transition: all 0.2s;
+            flex: 1; text-align: center; padding: 12px; border-radius: 24px; font-weight: 600; cursor: pointer;
+            color: var(--text-secondary); border: none; background: transparent; font-size: 15px;
         }
-        .tab-btn.active {
-            background: var(--primary);
-            color: white;
-        }
+        .tab-btn.active { background: var(--primary); color: white; }
 
         /* 统计面板 */
         #stats-panel { display: none; }
         #stats-panel.active { display: block; }
-        .stat-box {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
-        }
-        .stat-box h4 { margin-bottom: 16px; color: var(--text); font-size: 16px; }
-        .stat-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border);
-        }
+        .stat-box { background: var(--card); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); }
+        .stat-box h4 { margin-bottom: 16px; font-size: 16px; }
+        .stat-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
         .stat-item:last-child { border-bottom: none; }
-        .stat-bar {
-            flex: 1;
-            height: 6px;
-            background: var(--border);
-            border-radius: 3px;
-            margin: 0 12px;
-            overflow: hidden;
-        }
-        .stat-fill {
-            height: 100%;
-            border-radius: 3px;
-        }
-        .stat-percent {
-            font-size: 13px;
-            font-weight: 600;
-            width: 45px;
-            text-align: right;
-        }
+        .stat-bar { flex: 1; height: 6px; background: var(--border); border-radius: 3px; margin: 0 12px; overflow: hidden; }
+        .stat-fill { height: 100%; border-radius: 3px; }
+        .stat-percent { font-size: 13px; font-weight: 600; width: 45px; text-align: right; }
 
         /* 分类管理 */
-        .category-manager {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-top: 16px;
-            box-shadow: var(--shadow);
-        }
+        .category-manager { background: var(--card); border-radius: var(--radius); padding: 20px; margin-top: 16px; box-shadow: var(--shadow); }
         .cat-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 14px; }
-        .cat-tag {
-            background: #f0f3f5;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .cat-tag button {
-            background: none; border: none;
-            color: var(--expense);
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 16px;
-            line-height: 1;
-        }
-        .add-cat-form {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-        }
-        .add-cat-form input {
-            flex: 1;
-            padding: 10px 12px;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            font-size: 14px;
-        }
-        .add-cat-form select {
-            padding: 10px;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            font-size: 14px;
-        }
-        .add-cat-form button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 10px 18px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        .data-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .data-actions button {
-            flex: 1;
-            padding: 12px;
-            background: #ecf0f1;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            color: var(--text);
-        }
+        .cat-tag { background: #f0f3f5; padding: 6px 14px; border-radius: 20px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+        .cat-tag button { background: none; border: none; color: var(--expense); font-weight: bold; cursor: pointer; font-size: 16px; }
+        .add-cat-form { display: flex; gap: 8px; margin-top: 12px; }
+        .add-cat-form input { flex: 1; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 14px; }
+        .add-cat-form select { padding: 10px; border: 1px solid var(--border); border-radius: 10px; font-size: 14px; }
+        .add-cat-form button { background: var(--primary); color: white; border: none; border-radius: 10px; padding: 10px 18px; cursor: pointer; font-weight: 600; }
+        .data-actions { display: flex; gap: 10px; margin-top: 20px; }
+        .data-actions button { flex: 1; padding: 12px; background: #ecf0f1; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
 
-        /* 弹窗 */
+        /* 弹窗（底部滑出） */
         .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.4);
-            justify-content: center;
-            align-items: flex-end;
-            z-index: 200;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4); justify-content: center; align-items: flex-end; z-index: 200;
         }
         .modal.active { display: flex; }
         .modal-content {
-            background: var(--card);
-            border-radius: 24px 24px 0 0;
-            padding: 24px 20px 32px;
-            width: 100%;
-            max-width: 500px;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
-            animation: slideUp 0.3s ease;
+            background: var(--card); border-radius: 24px 24px 0 0; padding: 24px 20px 32px; width: 100%;
+            max-width: 500px; box-shadow: 0 -4px 20px rgba(0,0,0,0.1); animation: slideUp 0.3s ease;
         }
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-        .type-toggle {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .type-toggle { display: flex; gap: 12px; margin-bottom: 20px; }
         .type-toggle button {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            background: white;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 15px;
-            transition: all 0.2s;
+            flex: 1; padding: 12px; border: 2px solid var(--border); border-radius: 12px; background: white;
+            font-weight: 600; cursor: pointer; font-size: 15px;
         }
-        .type-toggle button.active-income {
-            border-color: var(--income);
-            background: #eafaf1;
-            color: var(--income);
-        }
-        .type-toggle button.active-expense {
-            border-color: var(--expense);
-            background: #fdedec;
-            color: var(--expense);
-        }
+        .type-toggle button.active-income { border-color: var(--income); background: #eafaf1; color: var(--income); }
+        .type-toggle button.active-expense { border-color: var(--expense); background: #fdedec; color: var(--expense); }
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
-        .form-group select, .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            font-size: 15px;
-            background: #fafafa;
-        }
-        .btn-row {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .btn-row button {
-            flex: 1;
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .btn-save {
-            background: var(--primary);
-            color: white;
-        }
-        .btn-cancel {
-            background: #ecf0f1;
-            color: var(--text);
-        }
+        .form-group select, .form-group input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 12px; font-size: 15px; background: #fafafa; }
+        .btn-row { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-row button { flex: 1; padding: 14px; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 16px; }
+        .btn-save { background: var(--primary); color: white; }
+        .btn-cancel { background: #ecf0f1; color: var(--text); }
 
-        .empty-state {
-            text-align: center;
-            color: #bdc3c7;
-            padding: 60px 20px;
-            font-size: 15px;
-        }
+        .empty-state { text-align: center; color: #bdc3c7; padding: 60px 20px; font-size: 15px; }
     </style>
 </head>
 <body>
 
-    <!-- 月份选择 -->
     <div class="month-picker">
         <button onclick="changeMonth(-1)">‹</button>
-        <span class="month-title" id="monthTitle">2026年5月</span>
+        <span class="month-title" id="monthTitle"></span>
         <button onclick="changeMonth(1)">›</button>
     </div>
 
-    <!-- 每日名言（新增） -->
-    <div class="quote-card" id="dailyQuote">
-        <div class="quote-text" id="quoteText"></div>
-        <div class="quote-author" id="quoteAuthor"></div>
-    </div>
-
-    <!-- 收入 / 支出 / 结余 -->
     <div class="overview">
-        <div class="card">
-            <div class="label">收入</div>
-            <div class="amount income-amount" id="incomeDisplay">¥0</div>
-        </div>
-        <div class="card">
-            <div class="label">支出</div>
-            <div class="amount expense-amount" id="expenseDisplay">¥0</div>
-        </div>
-        <div class="card">
-            <div class="label">结余</div>
-            <div class="amount balance-amount" id="balanceDisplay">¥0</div>
-        </div>
+        <div class="card"><div class="label">收入</div><div class="amount income-amount" id="incomeDisplay">¥0</div></div>
+        <div class="card"><div class="label">支出</div><div class="amount expense-amount" id="expenseDisplay">¥0</div></div>
+        <div class="card"><div class="label">结余</div><div class="amount balance-amount" id="balanceDisplay">¥0</div></div>
     </div>
 
-    <!-- 账单 / 统计面板切换 -->
     <div id="main-panel">
         <div class="record-list" id="recordList"></div>
     </div>
 
     <div id="stats-panel">
-        <div class="stat-box">
-            <h4>📊 本月支出分类</h4>
-            <div id="expenseBreakdown"></div>
-        </div>
-        <div class="stat-box">
-            <h4>📈 本月收入分类</h4>
-            <div id="incomeBreakdown"></div>
-        </div>
-
-        <!-- 分类管理 -->
+        <div class="stat-box"><h4>📊 本月支出分类</h4><div id="expenseBreakdown"></div></div>
+        <div class="stat-box"><h4>📈 本月收入分类</h4><div id="incomeBreakdown"></div></div>
         <div class="category-manager">
             <h4>⚙️ 分类管理</h4>
-            <div><strong>收入分类</strong>
-                <div class="cat-row" id="incomeCatList"></div>
-            </div>
-            <div style="margin-top:12px;"><strong>支出分类</strong>
-                <div class="cat-row" id="expenseCatList"></div>
-            </div>
+            <div><strong>收入分类</strong><div class="cat-row" id="incomeCatList"></div></div>
+            <div style="margin-top:12px;"><strong>支出分类</strong><div class="cat-row" id="expenseCatList"></div></div>
             <div class="add-cat-form">
                 <input type="text" id="newCatInput" placeholder="新分类名称">
-                <select id="newCatType">
-                    <option value="income">收入</option>
-                    <option value="expense">支出</option>
-                </select>
+                <select id="newCatType"><option value="income">收入</option><option value="expense">支出</option></select>
                 <button onclick="addCategory()">添加</button>
             </div>
             <div class="data-actions">
@@ -492,16 +181,13 @@
         </div>
     </div>
 
-    <!-- 悬浮记一笔按钮 -->
     <button class="fab" onclick="openAddModal()">+</button>
 
-    <!-- 底部导航 -->
     <div class="tab-nav">
         <button class="tab-btn active" id="tabMain" onclick="switchTab('main')">📋 账单</button>
         <button class="tab-btn" id="tabStats" onclick="switchTab('stats')">📊 统计</button>
     </div>
 
-    <!-- 记账弹窗（底部滑出） -->
     <div class="modal" id="recordModal">
         <div class="modal-content">
             <h3 style="text-align:center; margin-bottom:20px;">记一笔</h3>
@@ -509,22 +195,10 @@
                 <button id="typeIncomeBtn" class="active-income" onclick="setType('income')">💰 收入</button>
                 <button id="typeExpenseBtn" onclick="setType('expense')">💸 支出</button>
             </div>
-            <div class="form-group">
-                <label>分类</label>
-                <select id="recordCategory"></select>
-            </div>
-            <div class="form-group">
-                <label>金额</label>
-                <input type="number" id="recordAmount" placeholder="0.00" step="0.01" min="0.01" inputmode="decimal">
-            </div>
-            <div class="form-group">
-                <label>日期</label>
-                <input type="date" id="recordDate">
-            </div>
-            <div class="form-group">
-                <label>备注（选填）</label>
-                <input type="text" id="recordNote" placeholder="例如：午餐">
-            </div>
+            <div class="form-group"><label>分类</label><select id="recordCategory"></select></div>
+            <div class="form-group"><label>金额</label><input type="number" id="recordAmount" placeholder="0.00" step="0.01" min="0.01" inputmode="decimal"></div>
+            <div class="form-group"><label>日期</label><input type="date" id="recordDate"></div>
+            <div class="form-group"><label>备注（选填）</label><input type="text" id="recordNote" placeholder="例如：午餐"></div>
             <div class="btn-row">
                 <button class="btn-cancel" onclick="closeModal()">取消</button>
                 <button class="btn-save" onclick="saveRecord()">保存</button>
@@ -533,95 +207,13 @@
     </div>
 
     <script>
-        // ---------- 名言系统（新增） ----------
-        const quotes = [
-            { text: "生活不止眼前的苟且，还有诗和远方。", author: "高晓松" },
-            { text: "每一个不曾起舞的日子，都是对生命的辜负。", author: "尼采" },
-            { text: "你的时间有限，不要浪费于重复别人的生活。", author: "乔布斯" },
-            { text: "要么旅行，要么读书，身体和灵魂必须有一个在路上。", author: "张小砚" },
-            { text: "世界上最快乐的事，莫过于为理想而奋斗。", author: "苏格拉底" },
-            { text: "行动是治愈恐惧的良药，而犹豫拖延将不断滋养恐惧。", author: "戴尔·卡耐基" },
-            { text: "如果你把每一天都当作生命中的最后一天，总有一天你会是对的。", author: "乔布斯" },
-            { text: "不要努力成为一个成功者，努力成为一个有价值的人。", author: "爱因斯坦" },
-            { text: "我走得很慢，但我从不后退。", author: "林肯" },
-            { text: "哪怕房檐和屋梁把生活压得再低，它还是有另外一片天空的希望。", author: "何炅" },
-            { text: "人生如逆旅，我亦是行人。", author: "苏轼" },
-            { text: "黑夜无论怎样悠长，白昼总会到来。", author: "莎士比亚" },
-            { text: "当你为错过太阳而哭泣的时候，你也要再错过群星了。", author: "泰戈尔" },
-            { text: "天空没有翅膀的痕迹，但鸟儿已经飞过。", author: "泰戈尔" },
-            { text: "怕什么真理无穷，进一寸有一寸的欢喜。", author: "胡适" },
-            { text: "你必须按所想去生活，否则你只能按生活去想。", author: "王小波" },
-            { text: "人的一切痛苦，本质上都是对自己无能的愤怒。", author: "王小波" },
-            { text: "读一本好书，就是和许多高尚的人谈话。", author: "歌德" },
-            { text: "书籍是人类进步的阶梯。", author: "高尔基" },
-            { text: "学会感恩，拥有一颗感恩的心，你就会拥有快乐。", author: "佚名" },
-            { text: "人生的价值，并不是用时间，而是用深度去衡量的。", author: "列夫·托尔斯泰" },
-            { text: "重要的不是治愈，而是带着病痛活下去。", author: "加缪" },
-            { text: "做你自己，因为别人都有人做了。", author: "王尔德" },
-            { text: "我们每个人都是自己的命运建筑师。", author: "克劳狄乌斯" },
-            { text: "昨日之深渊，今日之浅谈。", author: "佚名" },
-            { text: "种一棵树最好的时间是十年前，其次是现在。", author: "非洲谚语" },
-            { text: "只有经历过地狱般的磨砺，才能练就创造天堂的力量。", author: "泰戈尔" },
-            { text: "世界上最宽阔的是海洋，比海洋更宽阔的是天空，比天空更宽阔的是人的胸怀。", author: "雨果" },
-            { text: "与其感慨路难行，不如马上出发。", author: "佚名" },
-            { text: "一个人知道自己为什么而活，就可以忍受任何一种生活。", author: "尼采" },
-            { text: "不乱于心，不困于情，不畏将来，不念过往，如此，安好。", author: "丰子恺" },
-            { text: "一个人至少拥有一个梦想，有一个理由去坚强。", author: "三毛" },
-            { text: "心若没有栖息的地方，到哪里都是在流浪。", author: "三毛" },
-            { text: "你若盛开，清风自来。", author: "佚名" },
-            { text: "今天应做的事没有做，明天再早也是耽误了。", author: "裴斯泰洛齐" },
-            { text: "合理安排时间，就等于节约时间。", author: "培根" },
-            { text: "成功＝艰苦的劳动＋正确的方法＋少说空话。", author: "爱因斯坦" },
-            { text: "不要为已消尽之年华叹息，必须正视匆匆溜走的时光。", author: "布莱希特" },
-            { text: "生活最大的危险在于一个空虚的心。", author: "茅盾" },
-            { text: "让每一天都有机会成为你人生中最美好的一天。", author: "佚名" },
-            { text: "快乐不在于拥有得多，而在于计较得少。", author: "佚名" },
-            { text: "看似寻常最奇崛，成如容易却艰辛。", author: "王安石" },
-            { text: "博观而约取，厚积而薄发。", author: "苏轼" },
-            { text: "积土而为山，积水而为海。", author: "荀子" },
-            { text: "日日行，不怕千万里；常常做，不怕千万事。", author: "金缨" },
-            { text: "锲而舍之，朽木不折；锲而不舍，金石可镂。", author: "荀子" },
-            { text: "业精于勤，荒于嬉；行成于思，毁于随。", author: "韩愈" },
-            { text: "盛年不重来，一日难再晨。及时当勉励，岁月不待人。", author: "陶渊明" },
-            { text: "青春须早为，岂能长少年。", author: "孟郊" },
-            { text: "莫等闲，白了少年头，空悲切。", author: "岳飞" },
-            { text: "一万年太久，只争朝夕。", author: "毛泽东" },
-            { text: "为中华之崛起而读书。", author: "周恩来" },
-            { text: "我们爱我们的民族，这是我们自信心的源泉。", author: "周恩来" },
-            { text: "学习的敌人是自己的满足，要认真学习一点东西，必须从不自满开始。", author: "毛泽东" },
-            { text: "虚心使人进步，骄傲使人落后。", author: "毛泽东" },
-            { text: "哪里有天才，我是把别人喝咖啡的工夫都用在工作上的。", author: "鲁迅" },
-            { text: "时间就像海绵里的水，只要愿挤，总还是有的。", author: "鲁迅" },
-            { text: "伟大的成绩和辛勤劳动是成正比例的。", author: "鲁迅" },
-            { text: "良好的开端，等于成功的一半。", author: "柏拉图" },
-            { text: "认识你自己。", author: "苏格拉底" }
-        ];
-
-        function getTodaysQuote() {
-            const today = new Date();
-            const dateString = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-            let hash = 0;
-            for (let i = 0; i < dateString.length; i++) {
-                hash = ((hash << 5) - hash) + dateString.charCodeAt(i);
-                hash |= 0; // 转为32位整数
-            }
-            const index = Math.abs(hash) % quotes.length;
-            return quotes[index];
-        }
-
-        function displayQuote() {
-            const q = getTodaysQuote();
-            document.getElementById('quoteText').textContent = '“ ' + q.text + ' ”';
-            document.getElementById('quoteAuthor').textContent = '—— ' + q.author;
-        }
-
-        // ---------- 数据管理 ----------
-        const STORAGE_KEY = 'ledger_ui_v1';
+        // === 数据管理 ===
+        const STORAGE_KEY = 'jizhang_single_v1';
         let data = {
             records: [],
             categories: {
-                income: ['工资', '兼职', '理财', '红包'],
-                expense: ['餐饮', '交通', '购物', '居家', '娱乐', '医疗']
+                income: ['工资','兼职','理财','红包'],
+                expense: ['餐饮','交通','购物','居家','娱乐','医疗']
             }
         };
 
@@ -633,37 +225,38 @@
                 const saved = localStorage.getItem(STORAGE_KEY);
                 if (saved) data = JSON.parse(saved);
             } catch(e) {
-                data = { records: [], categories: { income: ['工资', '兼职', '理财', '红包'], expense: ['餐饮', '交通', '购物', '居家', '娱乐', '医疗'] } };
+                data = { records: [], categories: { income: ['工资','兼职','理财','红包'], expense: ['餐饮','交通','购物','居家','娱乐','医疗'] } };
                 saveData();
             }
         }
         function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
         function uid() { return Date.now().toString(36) + Math.random().toString(36).substr(2,5); }
 
-        // ---------- 界面渲染 ----------
+        // === 渲染概览 ===
         function renderOverview() {
-            const monthRecs = data.records.filter(r => r.date.startsWith(currentMonth));
-            const inc = monthRecs.filter(r => r.type==='income').reduce((s,r) => s + r.amount, 0);
-            const exp = monthRecs.filter(r => r.type==='expense').reduce((s,r) => s + r.amount, 0);
+            const monthRecords = data.records.filter(r => r.date.startsWith(currentMonth));
+            const inc = monthRecords.filter(r => r.type==='income').reduce((s,r) => s + r.amount, 0);
+            const exp = monthRecords.filter(r => r.type==='expense').reduce((s,r) => s + r.amount, 0);
             document.getElementById('incomeDisplay').textContent = '¥' + inc.toFixed(2);
             document.getElementById('expenseDisplay').textContent = '¥' + exp.toFixed(2);
             document.getElementById('balanceDisplay').textContent = '¥' + (inc - exp).toFixed(2);
-            document.getElementById('monthTitle').textContent = currentMonth.replace('-', '年') + '月';
+            document.getElementById('monthTitle').textContent = currentMonth.replace('-','年') + '月';
         }
 
+        // === 账单列表 ===
         function renderRecordList() {
             const container = document.getElementById('recordList');
-            const monthRecs = data.records
+            const monthRecords = data.records
                 .filter(r => r.date.startsWith(currentMonth))
                 .sort((a,b) => b.date.localeCompare(a.date) || (b.id > a.id ? 1 : -1));
 
-            if (monthRecs.length === 0) {
+            if (monthRecords.length === 0) {
                 container.innerHTML = '<div class="empty-state">📝 暂无账单<br>点击下方 + 记一笔</div>';
                 return;
             }
 
             const groups = {};
-            monthRecs.forEach(r => {
+            monthRecords.forEach(r => {
                 if (!groups[r.date]) groups[r.date] = [];
                 groups[r.date].push(r);
             });
@@ -672,21 +265,13 @@
             Object.keys(groups).sort().reverse().forEach(date => {
                 const dayExp = groups[date].filter(r => r.type==='expense').reduce((s,r)=>s+r.amount,0);
                 html += `<div class="date-group">
-                    <div class="date-header">
-                        <span>📅 ${date}</span>
-                        <span>${dayExp > 0 ? '支出 ¥'+dayExp.toFixed(2) : ''}</span>
-                    </div>`;
+                    <div class="date-header"><span>📅 ${date}</span><span>${dayExp > 0 ? '支出 ¥'+dayExp.toFixed(2) : ''}</span></div>`;
                 groups[date].forEach(r => {
                     const icon = getIcon(r.category, r.type);
                     html += `<div class="record-item">
                         <div class="record-icon">${icon}</div>
-                        <div class="record-info">
-                            <div class="record-category">${r.category}</div>
-                            ${r.note ? `<div class="record-note">${r.note}</div>` : ''}
-                        </div>
-                        <div class="record-amount ${r.type}">
-                            ${r.type==='income' ? '+' : '-'}¥${r.amount.toFixed(2)}
-                        </div>
+                        <div class="record-info"><div class="record-category">${r.category}</div>${r.note ? `<div class="record-note">${r.note}</div>` : ''}</div>
+                        <div class="record-amount ${r.type}">${r.type==='income' ? '+' : '-'}¥${r.amount.toFixed(2)}</div>
                         <span class="record-delete" onclick="deleteRecord('${r.id}')">🗑️</span>
                     </div>`;
                 });
@@ -697,53 +282,44 @@
 
         function getIcon(cat, type) {
             const map = {
-                income: { '工资':'💼', '兼职':'💻', '理财':'📈', '红包':'🧧' },
-                expense: { '餐饮':'🍔', '交通':'🚌', '购物':'🛒', '居家':'🏠', '娱乐':'🎮', '医疗':'💊' }
+                income: { '工资':'💼','兼职':'💻','理财':'📈','红包':'🧧' },
+                expense: { '餐饮':'🍔','交通':'🚌','购物':'🛒','居家':'🏠','娱乐':'🎮','医疗':'💊' }
             };
             return (map[type] && map[type][cat]) || (type==='income' ? '💰' : '💸');
         }
 
-        // ---------- 统计面板 ----------
+        // === 统计面板 ===
         function renderStats() {
-            const monthRecs = data.records.filter(r => r.date.startsWith(currentMonth));
-            const expenseRecs = monthRecs.filter(r => r.type === 'expense');
-            const incomeRecs = monthRecs.filter(r => r.type === 'income');
-
-            renderCategoryBreakdown('expenseBreakdown', expenseRecs, 'expense');
-            renderCategoryBreakdown('incomeBreakdown', incomeRecs, 'income');
+            const monthRecords = data.records.filter(r => r.date.startsWith(currentMonth));
+            renderCategoryBreakdown('expenseBreakdown', monthRecords.filter(r => r.type==='expense'), 'expense');
+            renderCategoryBreakdown('incomeBreakdown', monthRecords.filter(r => r.type==='income'), 'income');
         }
 
-        function renderCategoryBreakdown(containerId, records, type) {
-            const container = document.getElementById(containerId);
+        function renderCategoryBreakdown(id, records, type) {
+            const container = document.getElementById(id);
             const total = records.reduce((s,r) => s + r.amount, 0);
             if (total === 0) {
                 container.innerHTML = '<div style="color:#bdc3c7; text-align:center; padding:20px;">暂无数据</div>';
                 return;
             }
-
-            const catMap = {};
-            records.forEach(r => {
-                catMap[r.category] = (catMap[r.category] || 0) + r.amount;
-            });
-
-            const sorted = Object.entries(catMap).sort((a,b) => b[1] - a[1]);
+            const map = {};
+            records.forEach(r => map[r.category] = (map[r.category] || 0) + r.amount);
+            const sorted = Object.entries(map).sort((a,b) => b[1] - a[1]);
             let html = '';
-            sorted.forEach(([cat, amount]) => {
-                const percent = ((amount / total) * 100).toFixed(1);
+            sorted.forEach(([cat, amt]) => {
+                const pct = ((amt / total) * 100).toFixed(1);
                 const color = type === 'expense' ? '#e74c3c' : '#2ecc71';
                 html += `<div class="stat-item">
                     <span>${cat}</span>
-                    <div class="stat-bar">
-                        <div class="stat-fill" style="width:${percent}%; background:${color};"></div>
-                    </div>
-                    <span class="stat-percent">${percent}%</span>
-                    <span style="margin-left:8px;">¥${amount.toFixed(2)}</span>
+                    <div class="stat-bar"><div class="stat-fill" style="width:${pct}%; background:${color};"></div></div>
+                    <span class="stat-percent">${pct}%</span>
+                    <span style="margin-left:8px;">¥${amt.toFixed(2)}</span>
                 </div>`;
             });
             container.innerHTML = html;
         }
 
-        // ---------- 弹窗逻辑 ----------
+        // === 弹窗 ===
         function openAddModal() {
             currentType = 'expense';
             updateTypeButtons();
@@ -753,25 +329,14 @@
             document.getElementById('recordNote').value = '';
             document.getElementById('recordModal').classList.add('active');
         }
-
-        function closeModal() {
-            document.getElementById('recordModal').classList.remove('active');
-        }
-
-        function setType(type) {
-            currentType = type;
-            updateTypeButtons();
-            populateCategorySelect();
-        }
-
+        function closeModal() { document.getElementById('recordModal').classList.remove('active'); }
+        function setType(type) { currentType = type; updateTypeButtons(); populateCategorySelect(); }
         function updateTypeButtons() {
             document.getElementById('typeIncomeBtn').className = currentType === 'income' ? 'active-income' : '';
             document.getElementById('typeExpenseBtn').className = currentType === 'expense' ? 'active-expense' : '';
         }
-
         function populateCategorySelect() {
-            document.getElementById('recordCategory').innerHTML =
-                data.categories[currentType].map(c => `<option>${c}</option>`).join('');
+            document.getElementById('recordCategory').innerHTML = data.categories[currentType].map(c => `<option>${c}</option>`).join('');
         }
 
         function saveRecord() {
@@ -779,11 +344,7 @@
             const amount = parseFloat(document.getElementById('recordAmount').value);
             const date = document.getElementById('recordDate').value;
             const note = document.getElementById('recordNote').value.trim();
-
-            if (!category || isNaN(amount) || amount <= 0) {
-                alert('请填写完整且正确的金额');
-                return;
-            }
+            if (!category || isNaN(amount) || amount <= 0) { alert('请填写完整且正确的金额'); return; }
             data.records.push({ id: uid(), type: currentType, category, amount, date, note });
             saveData();
             closeModal();
@@ -797,24 +358,19 @@
             refreshAll();
         }
 
-        // ---------- 分类管理 ----------
+        // === 分类管理 ===
         function renderCategoryManager() {
             document.getElementById('incomeCatList').innerHTML = data.categories.income.map(c =>
-                `<span class="cat-tag">${c} <button onclick="removeCategory('income','${c}')">×</button></span>`
-            ).join('');
+                `<span class="cat-tag">${c} <button onclick="removeCategory('income','${c}')">×</button></span>`).join('');
             document.getElementById('expenseCatList').innerHTML = data.categories.expense.map(c =>
-                `<span class="cat-tag">${c} <button onclick="removeCategory('expense','${c}')">×</button></span>`
-            ).join('');
+                `<span class="cat-tag">${c} <button onclick="removeCategory('expense','${c}')">×</button></span>`).join('');
         }
 
         function addCategory() {
             const name = document.getElementById('newCatInput').value.trim();
             const type = document.getElementById('newCatType').value;
             if (!name) return;
-            if (data.categories[type].includes(name)) {
-                alert('分类已存在');
-                return;
-            }
+            if (data.categories[type].includes(name)) { alert('分类已存在'); return; }
             data.categories[type].push(name);
             saveData();
             document.getElementById('newCatInput').value = '';
@@ -828,7 +384,7 @@
             renderCategoryManager();
         }
 
-        // ---------- 数据备份 ----------
+        // === 数据备份 ===
         function exportData() {
             const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
             const url = URL.createObjectURL(blob);
@@ -841,8 +397,7 @@
 
         function importData() {
             const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
+            input.type = 'file'; input.accept = '.json';
             input.onchange = e => {
                 const file = e.target.files[0];
                 const reader = new FileReader();
@@ -851,14 +406,9 @@
                         const imported = JSON.parse(reader.result);
                         if (imported.records && imported.categories) {
                             if (confirm('导入将覆盖当前数据，确定继续吗？')) {
-                                data = imported;
-                                saveData();
-                                refreshAll();
-                                alert('导入成功！');
+                                data = imported; saveData(); refreshAll(); alert('导入成功！');
                             }
-                        } else {
-                            alert('文件格式不正确');
-                        }
+                        } else { alert('文件格式不正确'); }
                     } catch(ex) { alert('解析失败，请检查文件'); }
                 };
                 reader.readAsText(file);
@@ -866,16 +416,13 @@
             input.click();
         }
 
-        // ---------- 导航与状态 ----------
+        // === 导航 ===
         function switchTab(tab) {
             document.getElementById('main-panel').style.display = tab === 'main' ? 'block' : 'none';
             document.getElementById('stats-panel').classList.toggle('active', tab === 'stats');
             document.getElementById('tabMain').classList.toggle('active', tab === 'main');
             document.getElementById('tabStats').classList.toggle('active', tab === 'stats');
-            if (tab === 'stats') {
-                renderStats();
-                renderCategoryManager();
-            }
+            if (tab === 'stats') { renderStats(); renderCategoryManager(); }
         }
 
         function changeMonth(delta) {
@@ -888,41 +435,42 @@
         function refreshAll() {
             renderOverview();
             renderRecordList();
-            if (document.getElementById('stats-panel').classList.contains('active')) {
-                renderStats();
-            }
+            if (document.getElementById('stats-panel').classList.contains('active')) renderStats();
         }
 
-        // ---------- 启动 ----------
+        // === 初始化 ===
         loadData();
-        displayQuote();   // 显示每日名言
         renderOverview();
         renderRecordList();
         document.getElementById('main-panel').style.display = 'block';
 
-        // PWA 支持（添加到桌面）
-        if ('serviceWorker' in navigator) {
+        // === 内联 PWA 支持（无需外部文件） ===
+        (function() {
             const manifest = {
                 name: '极简记账',
                 short_name: '记账',
-                start_url: location.href,
+                start_url: '.',
                 display: 'standalone',
                 background_color: '#f5f6fa',
                 theme_color: '#3498db',
                 icons: [{
-                    src: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" rx="20" fill="#3498db"/><text x="50" y="68" font-size="60" text-anchor="middle" fill="white">💰</text></svg>'),
-                    sizes: '100x100', type: 'image/svg+xml'
+                    src: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192"><rect width="192" height="192" rx="38" fill="#3498db"/><text x="96" y="130" font-size="115" text-anchor="middle" fill="white">💰</text></svg>'),
+                    sizes: '192x192',
+                    type: 'image/svg+xml'
                 }]
             };
             const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            document.head.insertAdjacentHTML('beforeend', `<link rel="manifest" href="${url}">`);
-            navigator.serviceWorker.register('data:application/javascript,' + encodeURIComponent(
-                'self.addEventListener("install",e=>self.skipWaiting());' +
-                'self.addEventListener("activate",e=>self.clients.claim());' +
-                'self.addEventListener("fetch",e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));});'
-            )).catch(() => {});
-        }
+            const manifestUrl = URL.createObjectURL(blob);
+            document.head.insertAdjacentHTML('beforeend', `<link rel="manifest" href="${manifestUrl}">`);
+
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('data:application/javascript,' + encodeURIComponent(
+                    'self.addEventListener("install",e=>self.skipWaiting());' +
+                    'self.addEventListener("activate",e=>self.clients.claim());' +
+                    'self.addEventListener("fetch",e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));});'
+                )).catch(() => {});
+            }
+        })();
     </script>
 </body>
 </html>
